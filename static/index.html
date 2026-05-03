@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 AI Dubber - Video Dubbing Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-box {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-box:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-box.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .start-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-section {
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .status-text {
+            text-align: center;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .video-section {
+            display: none;
+        }
+        
+        .video-player {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-section,
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 AI Dubber</h1>
+            <p>Transform any video into any language with AI-powered dubbing</p>
+        </header>
+        
+        <main class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload Video</h3>
+                    <p>Click to browse or drag and drop</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        Supports: MP4, MKV, AVI, MOV (max 100MB)
+                    </p>
+                    <input type="file" id="fileInput" class="file-input" accept="video/*">
+                </div>
+                
+                <div class="upload-box" id="urlBox">
+                    <div class="upload-icon">🔗</div>
+                    <h3>Video URL</h3>
+                    <p>Coming soon...</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        Paste video URL to process
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Selected File Info -->
+            <div id="fileInfo" style="display: none; margin-bottom: 20px; padding: 15px; background: #f8f9ff; border-radius: 8px;">
+                <strong>Selected:</strong> <span id="fileName"></span>
+                <span id="fileSize" style="float: right; color: #666;"></span>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <div class="form-group">
+                    <label for="languageSelect">Target Language</label>
+                    <select id="languageSelect">
+                        <option value="hi">🇮🇳 Hindi</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="it">🇮🇹 Italian</option>
+                        <option value="pt">🇵🇹 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="zh">🇨🇳 Chinese</option>
+                        <option value="ar">🇸🇦 Arabic</option>
+                        <option value="bn">🇧🇩 Bengali</option>
+                        <option value="ta">🇱🇰 Tamil</option>
+                        <option value="te">🇮🇳 Telugu</option>
+                        <option value="mr">🇮🇳 Marathi</option>
+                        <option value="gu">🇮🇳 Gujarati</option>
+                        <option value="pa">🇮🇳 Punjabi</option>
+                        <option value="ur">🇵🇰 Urdu</option>
+                        <option value="en">🇺🇸 English</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modeSelect">Processing Mode</label>
+                    <select id="modeSelect">
+                        <option value="fast">⚡ Fast (Subtitle Only)</option>
+                        <option value="cinema">🎬 Cinema (Full Voice)</option>
+                    </select>
+                </div>
+                
+                <button id="startBtn" class="start-btn" disabled>Start Dubbing</button>
+            </div>
+            
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="status-text" id="statusText">Initializing...</div>
+            </div>
+            
+            <!-- Messages -->
+            <div id="messageArea"></div>
+            
+            <!-- Video Section -->
+            <div class="video-section" id="videoSection">
+                <h3 style="margin-bottom: 20px;">🎬 Dubbed Video</h3>
+                <video id="videoPlayer" class="video-player" controls>
+                    Your browser does not support the video tag.
+                </video>
+                <br>
+                <a id="downloadBtn" class="download-btn" download>Download Video</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let statusInterval = null;
+        
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const startBtn = document.getElementById('startBtn');
+        const progressSection = document.getElementById('progressSection');
+        const videoSection = document.getElementById('videoSection');
+        const messageArea = document.getElementById('messageArea');
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('active');
+        });
+        
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('active');
+        });
+        
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+        
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                // Validate file size (100MB limit)
+                if (file.size > 100 * 1024 * 1024) {
+                    showMessage('File size must be less than 100MB', 'error');
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.startsWith('video/')) {
+                    showMessage('Please select a video file', 'error');
+                    return;
+                }
+                
+                // Show file info
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('fileInfo').style.display = 'block';
+                
+                // Enable start button
+                startBtn.disabled = false;
+                
+                // Clear previous results
+                resetUI();
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+        
+        function resetUI() {
+            progressSection.style.display = 'none';
+            videoSection.style.display = 'none';
+            messageArea.innerHTML = '';
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+        
+        // Start processing
+        startBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const language = document.getElementById('languageSelect').value;
+            const mode = document.getElementById('modeSelect').value;
+            
+            // Disable button during processing
+            startBtn.disabled = true;
+            startBtn.textContent = 'Processing...';
+            
+            // Show progress section
+            progressSection.style.display = 'block';
+            resetUI();
+            
+            try {
+                // Upload file
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                showMessage('Uploading video...', 'info');
+                
+                const response = await fetch('/upload/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                currentJobId = result.job_id;
+                
+                showMessage('Processing started! This may take several minutes...', 'success');
+                
+                // Start polling for status
+                statusInterval = setInterval(() => checkStatus(), 2000);
+                
+            } catch (error) {
+                showMessage('Upload failed: ' + error.message, 'error');
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Dubbing';
+            }
+        });
+        
+        async function checkStatus() {
+            if (!currentJobId) return;
+            
+            try {
+                const response = await fetch(`/status/${currentJobId}`);
+                if (!response.ok) return;
+                
+                const status = await response.json();
+                
+                // Update progress bar
+                const progressFill = document.getElementById('progressFill');
+                const statusText = document.getElementById('statusText');
+                
+                progressFill.style.width = status.percent + '%';
+                statusText.textContent = status.message || `${status.stage} (${status.percent}%)`;
+                
+                // Check if completed
+                if (status.stage === 'completed') {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    
+                    showMessage('Video processing completed!', 'success');
+                    
+                    // Show video player
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    videoPlayer.src = `/video/${currentJobId}`;
+                    
+                    // Set download link
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.href = `/video/${currentJobId}`;
+                    downloadBtn.download = `${currentJobId}_dubbed.mp4`;
+                    
+                    videoSection.style.display = 'block';
+                    
+                    // Reset button
+                    startBtn.disabled = false;
+                    startBtn.textContent = 'Start Dubbing';
+                    
+                } else if (status.stage === 'error') {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    
+                    showMessage('Processing failed: ' + status.message, 'error');
+                    
+                    // Reset button
+                    startBtn.disabled = false;
+                    startBtn.textContent = 'Start Dubbing';
+                }
+                
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>

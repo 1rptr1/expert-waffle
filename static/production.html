@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 AI Dubber - One-Click Video Dubbing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-box {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .upload-box:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-box.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .srt-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border: 2px solid #e0e6ff;
+        }
+        
+        .srt-section h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .srt-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .srt-upload:hover {
+            background: #f0f4ff;
+        }
+        
+        .mode-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .mode-card {
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
+        }
+        
+        .mode-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .mode-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .mode-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .mode-speed {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .language-selection {
+            margin-bottom: 30px;
+        }
+        
+        .language-selection label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .language-select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .language-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .start-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .start-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-section {
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 25px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .progress-stage {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .progress-percent {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .progress-message {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .video-section {
+            display: none;
+        }
+        
+        .video-container {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .video-player {
+            width: 100%;
+            display: block;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .control-btn.secondary {
+            background: #48bb78;
+        }
+        
+        .control-btn.secondary:hover {
+            background: #38a169;
+        }
+        
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .file-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e6ff;
+        }
+        
+        .file-info strong {
+            color: #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-section,
+            .mode-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .start-btn {
+                padding: 15px 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 AI Dubber</h1>
+            <p>Transform any video into any language with one click</p>
+        </header>
+        
+        <main class="main-content">
+            <!-- Video Upload Section -->
+            <div class="upload-section">
+                <div class="upload-box" id="videoUploadBox" onclick="document.getElementById('videoInput').click()">
+                    <div class="upload-icon">📹</div>
+                    <h3>Upload Video</h3>
+                    <p>Click to browse or drag and drop</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        MP4, MKV, AVI, MOV (max 500MB)
+                    </p>
+                    <input type="file" id="videoInput" class="file-input" accept="video/*">
+                </div>
+                
+                <div class="upload-box" id="urlBox">
+                    <div class="upload-icon">🔗</div>
+                    <h3>Video URL</h3>
+                    <p>Coming soon...</p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">
+                        Paste video URL to process
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Video File Info -->
+            <div id="videoFileInfo" style="display: none;" class="file-info">
+                <strong>📹 Video:</strong> <span id="videoFileName"></span>
+                <span style="float: right; color: #666;" id="videoFileSize"></span>
+            </div>
+            
+            <!-- Optional SRT Upload -->
+            <div class="srt-section">
+                <h3>📝 Optional: Upload Subtitles (SRT)</h3>
+                <div class="srt-upload" id="srtUploadBox" onclick="document.getElementById('srtInput').click()">
+                    <div class="upload-icon">📄</div>
+                    <p>Click to upload SRT file (optional)</p>
+                    <p style="font-size: 0.8rem; color: #999; margin-top: 5px;">
+                        If not provided, subtitles will be extracted automatically
+                    </p>
+                    <input type="file" id="srtInput" class="file-input" accept=".srt">
+                </div>
+                <div id="srtFileInfo" style="display: none; margin-top: 15px; padding: 10px; background: white; border-radius: 8px;">
+                    <strong>📄 Subtitles:</strong> <span id="srtFileName"></span>
+                </div>
+            </div>
+            
+            <!-- Mode Selection -->
+            <div class="mode-selection">
+                <div class="mode-card" id="fastMode" onclick="selectMode('fast')">
+                    <div class="mode-speed">⚡ FAST</div>
+                    <div class="mode-icon">🚀</div>
+                    <div class="mode-title">Fast Mode</div>
+                    <div class="mode-description">
+                        Quick subtitle-based dubbing<br>
+                        Perfect for simple content<br>
+                        Processing time: 2-5 minutes
+                    </div>
+                </div>
+                
+                <div class="mode-card" id="aiMode" onclick="selectMode('ai')">
+                    <div class="mode-speed">🧠 AI</div>
+                    <div class="mode-icon">✨</div>
+                    <div class="mode-title">AI Mode</div>
+                    <div class="mode-description">
+                        Enhanced AI-powered dubbing<br>
+                        Natural dialogue refinement<br>
+                        Processing time: 5-15 minutes
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Language Selection -->
+            <div class="language-selection">
+                <label for="languageSelect">🌍 Target Language</label>
+                <select id="languageSelect" class="language-select">
+                    <option value="hi">🇮🇳 Hindi</option>
+                    <option value="es">🇪🇸 Spanish</option>
+                    <option value="fr">🇫🇷 French</option>
+                    <option value="de">🇩🇪 German</option>
+                    <option value="it">🇮🇹 Italian</option>
+                    <option value="pt">🇵🇹 Portuguese</option>
+                    <option value="ru">🇷🇺 Russian</option>
+                    <option value="ja">🇯🇵 Japanese</option>
+                    <option value="ko">🇰🇷 Korean</option>
+                    <option value="zh">🇨🇳 Chinese</option>
+                    <option value="ar">🇸🇦 Arabic</option>
+                    <option value="bn">🇧🇩 Bengali</option>
+                    <option value="ta">🇱🇰 Tamil</option>
+                    <option value="te">🇮🇳 Telugu</option>
+                    <option value="mr">🇮🇳 Marathi</option>
+                    <option value="gu">🇮🇳 Gujarati</option>
+                    <option value="pa">🇮🇳 Punjabi</option>
+                    <option value="ur">🇵🇰 Urdu</option>
+                    <option value="en">🇺🇸 English</option>
+                </select>
+            </div>
+            
+            <!-- Start Button -->
+            <div class="start-section">
+                <button id="startBtn" class="start-btn" disabled>🎬 Start Dubbing</button>
+            </div>
+            
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-info">
+                    <span class="progress-stage" id="progressStage">Initializing...</span>
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-message" id="progressMessage">Starting dubbing process...</div>
+            </div>
+            
+            <!-- Messages -->
+            <div id="messageArea"></div>
+            
+            <!-- Video Section -->
+            <div class="video-section" id="videoSection">
+                <h3 style="margin-bottom: 20px; text-align: center;">🎬 Dubbed Video Ready!</h3>
+                <div class="video-container">
+                    <video id="videoPlayer" class="video-player" controls>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="video-controls">
+                    <a id="downloadBtn" class="control-btn" download>📥 Download Video</a>
+                    <button id="newVideoBtn" class="control-btn secondary">🎬 Dub Another Video</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let statusInterval = null;
+        let selectedMode = null;
+        
+        // File upload handling
+        const videoInput = document.getElementById('videoInput');
+        const srtInput = document.getElementById('srtInput');
+        const videoUploadBox = document.getElementById('videoUploadBox');
+        const srtUploadBox = document.getElementById('srtUploadBox');
+        const startBtn = document.getElementById('startBtn');
+        const progressSection = document.getElementById('progressSection');
+        const videoSection = document.getElementById('videoSection');
+        const messageArea = document.getElementById('messageArea');
+        
+        videoInput.addEventListener('change', handleVideoSelect);
+        srtInput.addEventListener('change', handleSrtSelect);
+        
+        // Drag and drop for video
+        videoUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            videoUploadBox.classList.add('active');
+        });
+        
+        videoUploadBox.addEventListener('dragleave', () => {
+            videoUploadBox.classList.remove('active');
+        });
+        
+        videoUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            videoUploadBox.classList.remove('active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('video/')) {
+                videoInput.files = files;
+                handleVideoSelect();
+            }
+        });
+        
+        function handleVideoSelect() {
+            const file = videoInput.files[0];
+            if (file) {
+                // Validate file size (500MB limit)
+                if (file.size > 500 * 1024 * 1024) {
+                    showMessage('File size must be less than 500MB', 'error');
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.startsWith('video/')) {
+                    showMessage('Please select a video file', 'error');
+                    return;
+                }
+                
+                // Show file info
+                document.getElementById('videoFileName').textContent = file.name;
+                document.getElementById('videoFileSize').textContent = formatFileSize(file.size);
+                document.getElementById('videoFileInfo').style.display = 'block';
+                
+                checkReadyState();
+            }
+        }
+        
+        function handleSrtSelect() {
+            const file = srtInput.files[0];
+            if (file) {
+                document.getElementById('srtFileName').textContent = file.name;
+                document.getElementById('srtFileInfo').style.display = 'block';
+            }
+        }
+        
+        function selectMode(mode) {
+            selectedMode = mode;
+            
+            // Update UI
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            if (mode === 'fast') {
+                document.getElementById('fastMode').classList.add('selected');
+            } else if (mode === 'ai') {
+                document.getElementById('aiMode').classList.add('selected');
+            }
+            
+            checkReadyState();
+        }
+        
+        function checkReadyState() {
+            const hasVideo = videoInput.files.length > 0;
+            const hasMode = selectedMode !== null;
+            
+            startBtn.disabled = !(hasVideo && hasMode);
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 8000);
+        }
+        
+        function resetUI() {
+            progressSection.style.display = 'none';
+            videoSection.style.display = 'none';
+            messageArea.innerHTML = '';
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+        
+        // Start processing
+        startBtn.addEventListener('click', async () => {
+            const videoFile = videoInput.files[0];
+            if (!videoFile || !selectedMode) return;
+            
+            const language = document.getElementById('languageSelect').value;
+            const srtFile = srtInput.files[0];
+            
+            // Disable button during processing
+            startBtn.disabled = true;
+            startBtn.textContent = 'Processing...';
+            
+            // Show progress section
+            progressSection.style.display = 'block';
+            resetUI();
+            
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('video', videoFile);
+                formData.append('mode', selectedMode);
+                formData.append('language', language);
+                
+                if (srtFile) {
+                    formData.append('srt', srtFile);
+                }
+                
+                showMessage(`Starting ${selectedMode.toUpperCase()} Mode dubbing...`, 'info');
+                
+                // Start processing
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Processing failed to start');
+                }
+                
+                const result = await response.json();
+                currentJobId = result.job_id;
+                
+                showMessage(`${selectedMode.toUpperCase()} Mode processing started!`, 'success');
+                
+                // Start polling for status
+                statusInterval = setInterval(() => checkStatus(), 2000);
+                
+            } catch (error) {
+                showMessage('Processing failed: ' + error.message, 'error');
+                startBtn.disabled = false;
+                startBtn.textContent = '🎬 Start Dubbing';
+            }
+        });
+        
+        async function checkStatus() {
+            if (!currentJobId) return;
+            
+            try {
+                const response = await fetch(`/status/${currentJobId}`);
+                if (!response.ok) return;
+                
+                const status = await response.json();
+                
+                // Update progress
+                const progressFill = document.getElementById('progressFill');
+                const progressStage = document.getElementById('progressStage');
+                const progressPercent = document.getElementById('progressPercent');
+                const progressMessage = document.getElementById('progressMessage');
+                
+                progressFill.style.width = status.percent + '%';
+                progressStage.textContent = status.stage;
+                progressPercent.textContent = status.percent + '%';
+                progressMessage.textContent = status.message || `${status.stage} (${status.percent}%)`;
+                
+                // Check if completed
+                if (status.done) {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    
+                    showMessage('🎉 Dubbing completed successfully!', 'success');
+                    
+                    // Show video player
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    videoPlayer.src = `/video/${currentJobId}`;
+                    
+                    // Set download link
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.href = `/download/${currentJobId}`;
+                    
+                    const modeSuffix = status.mode === 'fast' ? '_fast_dubbed.mp4' : '_ai_dubbed.mp4';
+                    downloadBtn.download = `dubbed_${currentJobId}${modeSuffix}`;
+                    
+                    videoSection.style.display = 'block';
+                    
+                    // Reset button
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🎬 Start Dubbing';
+                    
+                } else if (status.stage.includes('Error')) {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    
+                    showMessage('❌ Processing failed: ' + status.message, 'error');
+                    
+                    // Reset button
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🎬 Start Dubbing';
+                }
+                
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+        
+        // New video button
+        document.getElementById('newVideoBtn').addEventListener('click', () => {
+            // Reset everything
+            videoInput.value = '';
+            srtInput.value = '';
+            selectedMode = null;
+            currentJobId = null;
+            
+            document.getElementById('videoFileInfo').style.display = 'none';
+            document.getElementById('srtFileInfo').style.display = 'none';
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            resetUI();
+            checkReadyState();
+        });
+    </script>
+</body>
+</html>

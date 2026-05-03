@@ -1,0 +1,17 @@
+# Original AI Dubber requirements
+pysrt>=1.1.2
+deep-translator>=1.11.4
+gtts>=2.3.2
+opencv-python>=4.8.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+
+# Web application requirements
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+aiofiles>=23.2.1
+
+# System dependencies (install separately)
+# ffmpeg
+# tesseract-ocr
