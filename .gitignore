@@ -37,12 +37,20 @@ Thumbs.db
 
 # Project specific
 data/temp/
-data/output/
-*.mp4
+data/input/*.mkv
+data/input/*.mp4
+data/input/*.wav
+data/input/*.mp3
+data/input/*.srt
 *.mkv
 *.wav
 *.mp3
 *.srt
+
+# Keep output videos for demonstration
+!data/output/*.mp4
+!data/output/demo_*.mp4
+!data/output/*_dubbed.mp4
 
 # Logs
 *.log

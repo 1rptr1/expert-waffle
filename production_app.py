@@ -138,10 +138,10 @@ def run_fast_pipeline(job_id: str, video_path: str, srt_path: Optional[str], tar
             combined_voice = os.path.join(temp_dir, "combined_voice.wav")
             os.system(f"cd {temp_dir} && ffmpeg -y -f concat -safe 0 -i voice_list.txt -c copy combined_voice.wav")
             
-            # Quick mix
+            # Quick mix - preserve background audio
             os.system(f"""
-            ffmpeg -y -i {combined_voice} -i {original_audio} \\
-            -filter_complex "[0:a]volume=15.0[voice];[1:a]volume=0.1[bg];[voice][bg]amix=inputs=2:duration=longest" \\
+            ffmpeg -y -i {original_audio} -i {combined_voice} \\
+            -filter_complex "[0:a]volume=0.3[bg];[1:a]volume=5.0[voice];[bg][voice]amix=inputs=2:duration=longest:weights=1 3" \\
             {mixed_audio}
             """)
         else:
@@ -241,10 +241,10 @@ def run_ai_pipeline(job_id: str, video_path: str, target_language: str):
             combined_voice = os.path.join(temp_dir, "combined_voice.wav")
             os.system(f"cd {temp_dir} && ffmpeg -y -f concat -safe 0 -i voice_list.txt -c copy combined_voice.wav")
             
-            # Enhanced mixing
+            # Enhanced mixing - preserve background audio
             os.system(f"""
-            ffmpeg -y -i {combined_voice} -i {original_audio} \\
-            -filter_complex "[0:a]volume=15.0[voice];[1:a]volume=0.1[bg];[voice][bg]amix=inputs=2:duration=longest" \\
+            ffmpeg -y -i {original_audio} -i {combined_voice} \\
+            -filter_complex "[0:a]volume=0.3[bg];[1:a]volume=5.0[voice];[bg][voice]amix=inputs=2:duration=longest:weights=1 3" \\
             {mixed_audio}
             """)
         else:
